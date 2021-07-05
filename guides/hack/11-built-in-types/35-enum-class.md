@@ -245,6 +245,37 @@ enum class E1 : IBox extends E {
 hhvm.hack.lang.enable_enum_classes=1
 ```
 
+### Diamond shape scenarios
+Enum classes support diamond shaped inheritance as long as there is no ambiguity, like int:
+
+```EnumClassBox.extends2.hack no-auto-output
+<?hh
+
+enum class E : IBox {
+  Box<int> Age = new Box(42);
+}
+
+enum class E1 : IBox extends E {
+  Box<string> Name1 = new Box('foo');
+}
+
+enum class E2 : IBox extends E {
+  Box<string> Name2 = new Box('bar');
+}
+
+enum class E3 : IBox extends E1, E2 {}
+
+<<__EntryPoint>>
+function main() : void {
+  echo E3::Age->data;
+}
+```
+
+Here there is no ambiguity: the constant `Age` is inherited from `E`, and only from `E`.
+The `main` function will echo `42` as expected.
+
+If either `E1`, `E2` or `E3` tries to define a constant named `Age`, there will be an error.
+
 ### Control over inheritance
 
 Enum classes support the `__Sealed` attribute, just like normal classes. This will enable a more fine grain control over the extension mechanics.
